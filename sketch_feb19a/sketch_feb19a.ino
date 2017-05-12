@@ -80,8 +80,8 @@ switch (value)
   case 3:
     Serial.print("LEVEL 4");
     break;    
-  case 4:
-    Serial.print("FULL");
+//  case 4:
+//    Serial.print("FULL");
     break;
   default:
     Serial.print("NO WATER");

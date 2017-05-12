@@ -1,18 +1,20 @@
 #include <dht.h>
+#include <Servo.h>
+Servo servo;  
+int servoAngle = 0;   // servo position in degrees
+
 dht DHT;
 
 #define DHT11_PIN 2
 
-#define Living_Room_Light 12
-#define Living_Room_Fan   11
+#define Living_Room_Light 11
+#define Living_Room_Fan   12
 #define Bed_Room_Light    10
 #define Bed_Room_Fan      9
 #define Kitchen_Light     8
 
-const int analogInPin = A0;  
-const int analogOutPin = 9; 
 int analog[5] = {A0,A1,A2,A3,A4};
-int sensorValue = 0;      
+int sensorValue = 0, power = 1;      
 int value = 0;
 void setup()
 {
@@ -23,7 +25,9 @@ void setup()
   pinMode(Bed_Room_Light,OUTPUT);
   pinMode(Bed_Room_Fan,OUTPUT);
   pinMode(Kitchen_Light,OUTPUT);
+  servo.attach(3);
   Serial.println("Welcome"); 
+  
 }
 String msg = "";
 int count = 0;
@@ -66,43 +70,67 @@ void loop()
     if(msg == "L11"){
       //Serial.println("Living_Room_Light: On");
       digitalWrite(Living_Room_Light, HIGH);
+      power +=2;
     }
     if(msg == "L10"){
       //Serial.println("Living_Room_Light: Off");
       digitalWrite(Living_Room_Light, LOW);
+      power -=2;
     }
     if(msg == "L21"){
       //Serial.println("Living_Room_Fan: On");
       digitalWrite(Living_Room_Fan, HIGH);
+      power +=5;
     }
     if(msg == "L20"){
       //Serial.println("Living_Room_Fan: Off");
       digitalWrite(Living_Room_Fan, LOW);
+      power -=5;
     }
     if(msg == "L31"){
       //Serial.println("Bed_Room_Light: On");
       digitalWrite(Bed_Room_Light, HIGH);
+      power +=2;
     }
     if(msg == "L30"){
       //Serial.println("Living_Room_Fan: Off");
       digitalWrite(Bed_Room_Light, LOW);
+      power -=2;
     }
     if(msg == "L41"){
       //Serial.println("Bed_Room_Fan: On");
       digitalWrite(Bed_Room_Fan, HIGH);
+      power +=5;
     }
     if(msg == "L40"){
       //Serial.println("Bed_Room_Fan: Off");
       digitalWrite(Bed_Room_Fan, LOW);
+      power -=5;
     }
     if(msg == "L51"){
       //Serial.println("Kitchen_Light: On");
       digitalWrite(Kitchen_Light, HIGH);
+      power +=2;
     }    
     if(msg == "L50"){
       //Serial.println("Kitchen_Light: Off");
       digitalWrite(Kitchen_Light, LOW);
+      power -=2;
     }
+    if(msg == "L61"){
+      Serial.println("sERVO ON");      
+      for(servoAngle = 10; servoAngle < 121; servoAngle++)  //now move back the micro servo from 0 degrees to 180 degrees
+      {                                
+        servo.write(servoAngle);          
+        delay(10);      
+      }
+    }
+    if(msg == "L60"){
+      Serial.println("sERVO OFF");                                  
+        servo.write(10);          
+        delay(10);      
+    }
+    
     if(msg == "ALL1"){
       //Serial.println("All: On");
       digitalWrite(Living_Room_Light, HIGH);
@@ -110,6 +138,7 @@ void loop()
       digitalWrite(Bed_Room_Light, HIGH);
       digitalWrite(Bed_Room_Fan, HIGH);
       digitalWrite(Kitchen_Light, HIGH);
+      power = 17;
     }
     if(msg == "ALL0"){
       //Serial.println("All: Off");
@@ -118,11 +147,12 @@ void loop()
       digitalWrite(Bed_Room_Light, LOW);
       digitalWrite(Bed_Room_Fan, LOW);
       digitalWrite(Kitchen_Light, LOW);
+      power = 1;
     }
     if(msg == "VAL")
       send_values();
     }
-     if( count > 500){
+     if( count > 400){
       send_values();
       count=0;
      }
@@ -138,44 +168,37 @@ void send_values()
   Serial.print(",");
   check_water();
   Serial.print(",");
-  Serial.print("70");  
+  Serial.print(((power *100)/17));  
   Serial.print("$");
 }
 void check_water()
 {
   // read the analog in value:
-  value = 50;
-  for(int i=0 ;i< 5; i++)
+  value = 9;
+  for(int i=0 ;i< 4; i++)
   {
     sensorValue = analogRead(analog[i]);
-    if(sensorValue <1010)
+    if(sensorValue <900)
       value = i;
-//      delay(2);
   }
-switch (value)
-{
-   case 0:
-    Serial.print("10");
-    break;
-
-  case 1:
-    Serial.print("20");
-    break;
-
-  case 2:
-    Serial.print("30");
-    break;
-  case 3:
-    Serial.print("40");
-    break;    
-  case 4:
-    Serial.print("90");
-    break;
-  default:
-    Serial.print("80");
-    break;
-}
-value = 50;
+  switch (value)
+  {
+     case 0:
+      Serial.print("25");
+      break;
+    case 1:
+      Serial.print("50");
+      break;
+    case 2:
+      Serial.print("75");
+      break;
+    case 3:
+      Serial.print("100");
+      break;    
+    default:
+      Serial.print("00");
+      break;
+  }
 }
 
 
