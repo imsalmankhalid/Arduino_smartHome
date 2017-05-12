@@ -1,8 +1,6 @@
 #include <dht.h>
 #include <Servo.h>
  
-int servoPin = 3;
- 
 Servo servo;  
 String temp;
  
@@ -30,7 +28,7 @@ pinMode(LRF,OUTPUT);
 pinMode(BRL,OUTPUT);
 pinMode(BRF,OUTPUT);
 pinMode(KTL,OUTPUT);
-servo.attach(servoPin);
+servo.attach(2);
 
 }
 String msg = "";
@@ -80,6 +78,7 @@ void loop() {
             servo.write(servoAngle);          
             delay(10);      
           }
+          Serial.println("Servo on");
         }
          if(msg[0] == 'G' && msg[1] == 'T' && msg[2]=='0'){
            servo.write(10);
